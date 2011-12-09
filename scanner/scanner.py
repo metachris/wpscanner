@@ -16,19 +16,21 @@ import os
 import os.path
 import imp
 import urlparse
-
 import requests
 
 
 class Scanner(object):
-    plugins = []
-    results = {}
+    """Plugin based wordpress scanner module"""
     remote = None
+    verbose = False
+    location = None
 
+    info = {}
+    plugins = []
     request_buffer = {}
 
-    """Plugin based wordpress scanner module"""
     def __init__(self, location, verbose):
+        """Instantiate class and load plugins"""
         self.verbose = verbose
         self.location = location
         self.remote = not os.path.exists(self.location)
@@ -44,6 +46,7 @@ class Scanner(object):
             self.log(s)
 
     def load_plugins(self):
+        """Load plugins from the plugins/ subdirectory"""
         self.logv("Loading plugins")
         pluginpath = os.path.join(imp.find_module("scanner")[1], "plugins/")
         pluginfiles = [fname[:-3] for fname in os.listdir(pluginpath) if \
@@ -70,8 +73,10 @@ class Scanner(object):
                 "local", self.location))
         for plugin in self.plugins:
             plugin.start()
+        self.logv(self.info)
 
     def request(self, url, method="GET", data=None, headers=None):
+        """HTTP requests with cache"""
         key = str((url, method, data, headers))
         if key in self.request_buffer:
             return self.request_buffer[key]

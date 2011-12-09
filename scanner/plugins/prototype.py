@@ -19,3 +19,8 @@ class Prototype(object):
 
     def logv(self, s):
         self.scanner.logv(s)
+
+    @property
+    def info(self):
+        """Dictionary with collected data (including already run plugins)"""
+        return self.scanner.info

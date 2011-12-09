@@ -1,12 +1,14 @@
 """Plugin to find the used wordpress version of a remote installation"""
 
+import re
+import hashlib
 from prototype import Prototype
 
 HASH_MD5 = 0
 CONTAINS = 1
 
 # Identifiers for wordpress versions can either be specific file hashes, or
-# strings that have to be contained in a file.
+# regex patterns that have to be contained in a file.
 VERSIONS = {
     "3.2.1": [
         ("/wp-content/themes/twentyeleven/style.css", HASH_MD5,
@@ -32,7 +34,11 @@ class Plugin(Prototype):
     remote = True
 
     def start(self):
-        self.log("Trying to find out the exact wordpress version...")
+        self.log("Trying to find the exact wordpress version...")
+        self.info["version"] = self.find_version()
+        self.log("- Wordpress version: %s" % self.info["version"] or "unknown")
+
+    def find_version(self):
         versions = VERSIONS.keys()
         versions.sort(reverse=True)
         for v in versions:
@@ -40,3 +46,12 @@ class Plugin(Prototype):
                 self.logv("- Checking for %s..." % v)
                 url, id_type, token = identifyer
                 r = self.request(url)
+                if r.status_code in [200, 403]:
+                    if id_type == HASH_MD5:
+                        md5 = hashlib.md5(r.content).hexdigest()
+                        if md5 == token:
+                            return v
+                    elif id_type == CONTAINS:
+                        pattern = re.compile(token)
+                        if pattern.search(r.content):
+                            return v
