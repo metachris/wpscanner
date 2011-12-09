@@ -18,10 +18,17 @@ import imp
 
 
 class Scanner(object):
+    plugins = []
+    results = {}
+    remote = True  # whether wp location is remote (web) or local (dir)
+
     """Plugin based wordpress scanner module"""
     def __init__(self, location, verbose):
-        self.location = location
         self.verbose = verbose
+        self.location = location
+        if os.path.exists(self.location):
+            self.remote = False
+
         self.load_plugins()
 
     def log(self, s):
@@ -33,20 +40,6 @@ class Scanner(object):
         if self.verbose:
             self.log(s)
 
-    def scan(self):
-        if os.path.exists(self.location):
-            self.scan_local(self.location)
-        else:
-            self.scan_remote(self.location)
-
-    def scan_local(self, directory):
-        """Scans a local wordpress installation"""
-        self.log("Scan local directory: %s" % directory)
-
-    def scan_remote(self, url):
-        """Scans a remote wordpress installation"""
-        self.log("Scan remote location: %s" % url)
-
     def load_plugins(self):
         self.logv("Loading plugins")
         pluginpath = os.path.join(imp.find_module("scanner")[1], "plugins/")
@@ -55,13 +48,23 @@ class Scanner(object):
         if not pluginpath in sys.path:
             sys.path.append(pluginpath)
 
-        # Import
-        self.plugins = [__import__(fname) for fname in pluginfiles]
-
-        # Register imnported modules
-        for plugin in self.plugins:
+        # Import & Register
+        modules = [__import__(fname) for fname in pluginfiles]
+        for mod in modules:
+            if not mod.Plugin.remote == self.remote:
+                # Skip incompatible plugins (local vs remote)
+                continue
             try:
-                plugin.register()
+                self.plugins.append(mod.Plugin(self))
             except:
                 print "Could not register plugin %s" % mod
                 raise
+
+        self.logv(self.plugins)
+
+    def scan(self):
+        """Initiate the scans (the plugins, one after another)"""
+        self.log("Starting %s scan of %s" % ("remote" if self.remote else \
+                "local", self.location))
+        for plugin in self.plugins:
+            plugin.start()

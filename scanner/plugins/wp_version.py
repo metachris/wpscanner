@@ -1,4 +1,4 @@
-"""Plugin prototype"""
+"""Plugin to find the used wordpress version"""
 
 
 class Plugin(object):
@@ -9,4 +9,4 @@ class Plugin(object):
         self.scanner = scanner
 
     def start(self):
-        print "- Start prototype plugin"
+        print "- Start wp-version"

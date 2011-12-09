@@ -23,11 +23,43 @@ wp-check-local checks
 * unique db, users?
 
 
-Related
+Various
 =======
+
+Dependencies
+------------
+see `dependencies.txt`
+
+* Requests: HTTP for Humans (http://docs.python-requests.org/en/latest/index.html)
+
+
+
+Related
+-------
 * http://code.google.com/p/wpscan (http://code.google.com/p/wpscan/source/browse/#svn%2Ftrunk%2Fdata)
+
 
 
 References
 ----------
 * http://news.ycombinator.com/item?id=3332764
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Components
+==========
+* Scanner: 
+** gather info about wordpress version, themes, plugins, etc
+** check for vulnerabilities, etc
+* 
