@@ -1,7 +1,7 @@
 """Plugin prototype"""
 
 
-class Plugin(object):
+class Prototype(object):
     runlevel = 0
     remote = True
 
@@ -9,4 +9,13 @@ class Plugin(object):
         self.scanner = scanner
 
     def start(self):
-        print "- Start prototype plugin"
+        pass
+
+    def request(self, url, method="GET", data=None, headers=None):
+        return self.scanner.request(url, method, data, headers)
+
+    def log(self, s):
+        self.scanner.log(s)
+
+    def logv(self, s):
+        self.scanner.logv(s)

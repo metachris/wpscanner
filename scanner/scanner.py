@@ -15,20 +15,23 @@ import sys
 import os
 import os.path
 import imp
+import urlparse
+
+import requests
 
 
 class Scanner(object):
     plugins = []
     results = {}
-    remote = True  # whether wp location is remote (web) or local (dir)
+    remote = None
+
+    request_buffer = {}
 
     """Plugin based wordpress scanner module"""
     def __init__(self, location, verbose):
         self.verbose = verbose
         self.location = location
-        if os.path.exists(self.location):
-            self.remote = False
-
+        self.remote = not os.path.exists(self.location)
         self.load_plugins()
 
     def log(self, s):
@@ -49,22 +52,35 @@ class Scanner(object):
             sys.path.append(pluginpath)
 
         # Import & Register
-        modules = [__import__(fname) for fname in pluginfiles]
+        modules = [__import__(fname) for fname in pluginfiles if not \
+                fname == "prototype"]
         for mod in modules:
-            if not mod.Plugin.remote == self.remote:
-                # Skip incompatible plugins (local vs remote)
-                continue
-            try:
-                self.plugins.append(mod.Plugin(self))
-            except:
-                print "Could not register plugin %s" % mod
-                raise
+            if mod.Plugin.remote == self.remote:
+                try:
+                    self.plugins.append(mod.Plugin(self))
+                except:
+                    print "Could not register plugin %s" % mod
+                    raise
 
         self.logv(self.plugins)
 
-    def scan(self):
+    def start(self):
         """Initiate the scans (the plugins, one after another)"""
         self.log("Starting %s scan of %s" % ("remote" if self.remote else \
                 "local", self.location))
         for plugin in self.plugins:
             plugin.start()
+
+    def request(self, url, method="GET", data=None, headers=None):
+        key = str((url, method, data, headers))
+        if key in self.request_buffer:
+            return self.request_buffer[key]
+
+        url = urlparse.urljoin(self.location, url)
+        self.logv("- Requesting %s" % url)
+        if method == "GET":
+            r = requests.get(url)
+        elif method == "POST":
+            r = requests.get(url)
+        self.request_buffer[key] = r
+        return r

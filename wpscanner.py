@@ -23,7 +23,7 @@ from scanner.scanner import Scanner
 
 def main(location, verbose=False):
     scanner = Scanner(location, verbose=verbose)
-    scanner.scan()
+    scanner.start()
 
 
 if __name__ == '__main__':
@@ -34,11 +34,6 @@ if __name__ == '__main__':
     parser = OptionParser(usage=usage, version=version)
     parser.add_option("-v", "--verbose", default=False,
             action="store_true", dest="verbose")
-    #parser.add_option("-s", "--size", dest="size",
-    #        help="Specify grid columns and rows (eg 15x10)", metavar="SIZE")
-    #parser.add_option("-o", "--ouput", dest="output", choices=["grid", "csv"],
-    #        default="grid", help="Type of output ('grid' or 'csv')",
-    #        metavar="FORMAT")
 
     (options, args) = parser.parse_args()
     if len(args) == 0:
