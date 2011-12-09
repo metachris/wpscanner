@@ -18,7 +18,7 @@ import sys
 import os
 from optparse import OptionParser
 
-from scanner import Scanner
+from scanner.scanner import Scanner
 
 
 def main(location, verbose=False):
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     Example: '%prog http://www.myblog.com' or '%prog /var/www/myblog'"""
     version = "%prog " + __version__
     parser = OptionParser(usage=usage, version=version)
-    parser.add_option("-v", "--verbose", default="false",
+    parser.add_option("-v", "--verbose", default=False,
             action="store_true", dest="verbose")
     #parser.add_option("-s", "--size", dest="size",
     #        help="Specify grid columns and rows (eg 15x10)", metavar="SIZE")
