@@ -25,7 +25,11 @@ class Scanner(object):
     verbose = False
     location = None
 
-    info = {}
+    # Info is a shared dictionary across all plugins
+    info = {
+        "vulnerabilities": [],
+        "recommendations": [],
+    }
     plugins = []
     request_buffer = {}
 
